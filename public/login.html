@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pathpilot AI - Secure Access</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Base Resets and Typography 
+        */
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #050505;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* 3D Canvas Container 
+        */
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Login Form Layout and 3D Transforms 
+        */
+        .login-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            perspective: 1200px;
+        }
+
+        .glass-login-box {
+            background: rgba(15, 20, 25, 0.45);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 50px 40px;
+            width: 420px;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8), inset 0 0 40px rgba(88, 166, 255, 0.1);
+            transform-style: preserve-3d;
+            transition: transform 0.1s;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+            transform: translateZ(60px);
+        }
+
+        .login-header h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.8rem;
+            margin: 0;
+            background: linear-gradient(135deg, #58a6ff, #a371f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(88, 166, 255, 0.3);
+            letter-spacing: -1px;
+        }
+
+        .login-header p {
+            color: #8b949e;
+            margin-top: 12px;
+            font-size: 1.05rem;
+            letter-spacing: 0.5px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+            transform: translateZ(40px);
+            position: relative;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8b949e;
+            font-size: 1.2rem;
+            transition: color 0.3s ease;
+            pointer-events: none;
+        }
+
+        .input-group input:focus+i,
+        .input-group input:not(:placeholder-shown)+i {
+            color: #58a6ff;
+        }
+
+        .glass-input-3d {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 18px 15px 18px 50px;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 1.05rem;
+            outline: none;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .glass-input-3d::placeholder {
+            color: rgba(139, 148, 158, 0.6);
+        }
+
+        .glass-input-3d:focus {
+            border-color: #58a6ff;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 20px rgba(88, 166, 255, 0.3), inset 0 0 10px rgba(88, 166, 255, 0.1);
+        }
+
+        /* Immersive Button 
+        */
+        .btn-3d {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #58a6ff, #317be0);
+            color: white;
+            font-size: 1.15rem;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transform: translateZ(50px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 15px 30px rgba(88, 166, 255, 0.4), inset 0 2px 0 rgba(255, 255, 255, 0.3);
+            margin-top: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-3d::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: all 0.6s ease;
+        }
+
+        .btn-3d:hover {
+            transform: translateZ(60px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(88, 166, 255, 0.6), inset 0 2px 0 rgba(255, 255, 255, 0.3);
+            background: linear-gradient(135deg, #6baeff, #3b82f6);
+        }
+
+        .btn-3d:hover::before {
+            left: 100%;
+        }
+
+        .toggle-mode {
+            text-align: center;
+            margin-top: 20px;
+            color: #8b949e;
+            font-size: 0.9rem;
+            transform: translateZ(35px);
+        }
+
+        .toggle-mode span#toggleLink {
+            transition: color 0.3s, text-shadow 0.3s;
+        }
+
+        .toggle-mode span#toggleLink:hover {
+            color: #fff !important;
+            text-shadow: 0 0 10px rgba(88, 166, 255, 0.8);
+        }
+
+        #authStatus {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.95rem;
+            color: #2ea043;
+            transform: translateZ(40px);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(46, 160, 67, 0.5);
+        }
+
+        /* Ambient Environment Lighting 
+        */
+        .ambient-light {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(88, 166, 255, 0.5) 0%, transparent 70%);
+            top: -100px;
+            right: -100px;
+            filter: blur(80px);
+            z-index: 2;
+            pointer-events: none;
+            animation: floatLight 12s infinite alternate ease-in-out;
+        }
+
+        .ambient-light-2 {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(163, 113, 247, 0.3) 0%, transparent 70%);
+            bottom: -150px;
+            left: -150px;
+            filter: blur(100px);
+            z-index: 2;
+            pointer-events: none;
+            animation: floatLight 15s infinite alternate-reverse ease-in-out;
+        }
+
+        @keyframes floatLight {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(30px, -40px) scale(1.1);
+            }
+
+            100% {
+                transform: translate(-50px, 50px) scale(1.2);
+            }
+        }
+
+        /* Warp Drive Transition Overlay */
+        #warp-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            mix-blend-mode: screen;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="canvas-container"></div>
+
+    <div class="ambient-light"></div>
+    <div class="ambient-light-2"></div>
+
+    <div class="login-wrapper" id="loginWrapper">
+        <div class="glass-login-box" id="loginBox">
+            <div class="login-header">
+                <h2>Pathpilot AI</h2>
+                <p id="subHeaderText">Initialize Neural Link</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="input-group" id="nameGroup"
+                    style="display: none; opacity: 0; transform: translateY(-10px);">
+                    <input type="text" id="name" class="glass-input-3d" placeholder="Name" autocomplete="off">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <div class="input-group">
+                    <input type="email" id="email" class="glass-input-3d" placeholder="Email" required
+                        autocomplete="off">
+                    <i class="fa-solid fa-envelope"></i>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" class="glass-input-3d" placeholder="Password" required>
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+
+                <button type="submit" class="btn-3d" id="authBtn">login</button>
+            </form>
+
+            <div class="toggle-mode">
+                <p><span id="togglePrefix">New to the grid?</span> <span id="toggleLink"
+                        style="color: #58a6ff; cursor: pointer; font-weight: bold;">Sign Up</span></p>
+            </div>
+
+            <div id="authStatus">Authentication Sequence Engaged...</div>
+        </div>
+    </div>
+
+    <div id="warp-overlay"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <script>
+        /* =========================================================
+           1. MOUSE TILT EFFECT ON LOGIN PANEL
+           ========================================================= */
+        const box = document.getElementById('loginBox');
+        let isHovering = false;
+
+        document.addEventListener('mousemove', (e) => {
+            if (window.innerWidth < 768) return;
+
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 30;
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 30;
+
+            box.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+        });
+
+        document.addEventListener('mouseleave', () => {
+            box.style.transform = `rotateY(0deg) rotateX(0deg)`;
+            box.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        });
+
+        document.addEventListener('mouseenter', () => {
+            box.style.transition = 'none';
+        });
+
+        /* =========================================================
+           2. THREE.JS IMMERSIVE NEURAL MESH & BACKGROUND
+           ========================================================= */
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2('#050505', 0.0015);
+
+        const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 2000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        camera.position.z = 250;
+
+        // Neural Particles
+        const particleCount = 2500;
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+        const sizes = new Float32Array(particleCount);
+
+        const color1 = new THREE.Color('#58a6ff'); 
+        const color2 = new THREE.Color('#a371f7'); 
+        const color3 = new THREE.Color('#ffffff'); 
+
+        for (let i = 0; i < particleCount; i++) {
+            positions[i * 3] = (Math.random() - 0.5) * 1200; 
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 1200; 
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 1200; 
+
+            const randColor = Math.random();
+            let mixedColor;
+            if (randColor < 0.6) mixedColor = color1.clone().lerp(color2, Math.random());
+            else if (randColor < 0.9) mixedColor = color2;
+            else mixedColor = color3;
+
+            colors[i * 3] = mixedColor.r;
+            colors[i * 3 + 1] = mixedColor.g;
+            colors[i * 3 + 2] = mixedColor.b;
+
+            sizes[i] = Math.random() * 2.5 + 0.5;
+        }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+        const material = new THREE.PointsMaterial({
+            size: 2,
+            vertexColors: true,
+            blending: THREE.AdditiveBlending,
+            transparent: true,
+            opacity: 0.9,
+            sizeAttenuation: true
+        });
+
+        const particles = new THREE.Points(geometry, material);
+        scene.add(particles);
+
+        const buildWireframe = (radius, detail, colorHex, opacityVal) => {
+            const geom = new THREE.IcosahedronGeometry(radius, detail);
+            const mat = new THREE.MeshBasicMaterial({
+                color: colorHex,
+                wireframe: true,
+                transparent: true,
+                opacity: opacityVal,
+                blending: THREE.AdditiveBlending
+            });
+            return new THREE.Mesh(geom, mat);
+        };
+
+        const coreMesh1 = buildWireframe(120, 2, 0x58a6ff, 0.08);
+        const coreMesh2 = buildWireframe(160, 1, 0xa371f7, 0.05);
+        const coreMesh3 = buildWireframe(200, 3, 0x317be0, 0.03);
+
+        scene.add(coreMesh1);
+        scene.add(coreMesh2);
+        scene.add(coreMesh3);
+
+        let mouseX = 0;
+        let mouseY = 0;
+        let speedMult = 1;
+        let isWarping = false;
+
+        const windowHalfX = window.innerWidth / 2;
+        const windowHalfY = window.innerHeight / 2;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX - windowHalfX);
+            mouseY = (event.clientY - windowHalfY);
+        });
+
+        const passwordInput = document.getElementById('password');
+        passwordInput.addEventListener('input', () => {
+            gsap.to(window, { speedMult: 6, duration: 0.1, yoyo: true, repeat: 1, onComplete: () => speedMult = 1 });
+            gsap.to(coreMesh1.material, { opacity: 0.3, duration: 0.1, yoyo: true, repeat: 1 });
+            gsap.to(coreMesh2.material, { opacity: 0.2, duration: 0.1, yoyo: true, repeat: 1 });
+        });
+
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+
+            if (!isWarping) {
+                particles.rotation.y += 0.001 * speedMult;
+                particles.rotation.x += 0.0005 * speedMult;
+
+                coreMesh1.rotation.y -= 0.002 * speedMult;
+                coreMesh1.rotation.x -= 0.001 * speedMult;
+
+                coreMesh2.rotation.y += 0.0015 * speedMult;
+                coreMesh2.rotation.z += 0.001 * speedMult;
+
+                coreMesh3.rotation.x += 0.0005 * speedMult;
+                coreMesh3.rotation.y -= 0.0008 * speedMult;
+
+                camera.position.x += (mouseX * 0.08 - camera.position.x) * 0.05;
+                camera.position.y += (-mouseY * 0.08 - camera.position.y) * 0.05;
+                camera.lookAt(scene.position);
+            } else {
+                particles.rotation.z += 0.02;
+                particles.rotation.y += 0.01; 
+
+                const positions = particles.geometry.attributes.position.array;
+                for (let i = 0; i < particleCount; i++) {
+                    positions[i * 3 + 2] += 40; 
+                    if (positions[i * 3 + 2] > 300) {
+                        positions[i * 3 + 2] = -1200; 
+                    }
+                }
+                particles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        /* =========================================================
+           3. LOGIN/SIGNUP SEQUENCE & WARP TRANSITION (REPAIRED)
+           ========================================================= */
+        const loginForm = document.getElementById('loginForm');
+        const authStatus = document.getElementById('authStatus');
+        const authBtn = document.getElementById('authBtn');
+        const overlay = document.getElementById('warp-overlay');
+
+        let isSignUp = false;
+        const toggleLink = document.getElementById('toggleLink');
+        const togglePrefix = document.getElementById('togglePrefix');
+        const nameGroup = document.getElementById('nameGroup');
+        const nameInput = document.getElementById('name');
+        const subHeaderText = document.getElementById('subHeaderText');
+
+        toggleLink.addEventListener('click', () => {
+            isSignUp = !isSignUp;
+
+            if (isSignUp) {
+                nameGroup.style.display = 'block';
+                gsap.to(nameGroup, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" });
+
+                subHeaderText.textContent = 'Create Neural Link';
+                authBtn.textContent = 'Sign up';
+                nameInput.setAttribute('required', 'true');
+
+                togglePrefix.textContent = 'Already registered?';
+                toggleLink.textContent = 'Login';
+            } else {
+                gsap.to(nameGroup, {
+                    opacity: 0, y: -10, duration: 0.3, ease: "power2.in",
+                    onComplete: () => { nameGroup.style.display = 'none'; }
+                });
+
+                subHeaderText.textContent = 'Initialize Neural Link';
+                authBtn.textContent = 'login';
+                nameInput.removeAttribute('required');
+
+                togglePrefix.textContent = 'New to the grid?';
+                toggleLink.textContent = 'Sign Up';
+            }
+        });
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            // REPAIR 1: Get value from the correct input ID ('email' instead of 'username')
+            let emailVal = document.getElementById('email').value.trim();
+            let nameVal = document.getElementById('name').value.trim();
+
+            authBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Establishing Link...';
+            authBtn.style.background = '#2ea043';
+            authBtn.style.boxShadow = '0 10px 30px rgba(46, 160, 67, 0.4)';
+            authStatus.style.opacity = 1;
+            box.style.pointerEvents = 'none';
+
+            isWarping = true;
+
+            gsap.to(box, {
+                translateZ: -800,
+                opacity: 0,
+                scale: 0.5,
+                duration: 1.5,
+                ease: "power4.in"
+            });
+
+            gsap.to(camera.position, {
+                z: -800,
+                duration: 2.5,
+                ease: "power2.in"
+            });
+
+            setTimeout(() => {
+                gsap.to(overlay, {
+                    opacity: 1,
+                    duration: 0.5,
+                    onComplete: () => {
+                        // REPAIR 2 & 3: Corrected storage key to 'pathforge_user' 
+                        // and extracting beautiful username from email
+                        let displayUser = (isSignUp && nameVal) ? nameVal : emailVal.split('@')[0];
+                        
+                        localStorage.setItem('pathforge_user', displayUser);
+                        
+                        // Blast off to main app
+                        window.location.href = 'index.html';
+                    }
+                });
+            }, 1800);
+        });
+
+        // Initial Entry Animation
+        gsap.from(box, {
+            y: 100,
+            opacity: 0,
+            translateZ: -300,
+            rotationX: -10,
+            duration: 1.8,
+            ease: "power4.out"
+        });
+
+    </script>
+</body>
+
+</html>

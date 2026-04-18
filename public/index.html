@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pathpilot AI - Career Decision Simulator</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="app">
+    <div class="sidebar" id="sidebar">
+      <button class="menu-toggle sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">☰</button>
+      <div>
+        <h1>Pathpilot AI</h1>
+        <p>Simulate • Compare • Forge Your Future</p>
+        <nav>
+          <a href="#" onclick="showSection('home')" class="nav-item active">🏠 Home</a>
+          <a href="#" onclick="showSection('results')" class="nav-item">📊 Results</a>
+          <a href="#" onclick="showSection('chat')" class="nav-item">💬 AI Assistant</a>
+           <a href="#" class="nav-item" onclick="showSection('history')">📜 History / Activity</a>
+          <a href="#" onclick="showSection('dev')" class="nav-item">⚙️ Settings</a>
+        </nav>
+      </div>
+     <div class="sidebar-footer">
+        <div class="profile-section">
+          <div class="profile-avatar">👤</div>
+          <div class="profile-info">
+            <span id="profileName">Guest</span>
+            <small id="profileStatus">Not logged in</small>
+          </div>
+        </div>
+<button id="sidebarLoginBtn" class="btn sidebar-login-btn" onclick="window.location.href='login.html'">Login / Register</button>        <button id="sidebarLogoutBtn" class="btn sidebar-login-btn hidden" onclick="handleLogout()" style="color: #ef4444; border-color: #ef4444;">Logout</button>
+      </div>
+    </div>
+
+    <div class="main">
+      
+      <div class="top-bar">
+        <button class="menu-toggle floating-toggle" onclick="toggleSidebar()" aria-label="Open menu">☰</button>
+      </div>
+
+      <div id="home" class="section active">
+        <div class="brand-hero">
+          <div class="brand-badge">✨ AI-Powered Career Intelligence</div>
+          <h1 class="brand-name">Pathpilot<span class="brand-accent">AI</span></h1>
+          <p class="brand-tagline">Simulate. Compare. Forge Your Future.</p>
+          <p class="brand-desc">Discover personalised career pathways powered by intelligent simulations. Upload your resume or build your profile to explore where your skills, interests and ambitions can take you next.</p>
+        </div>
+
+        <div class="home-header">
+          <div>
+            <h1>Career Decision Simulator</h1>
+            <p style="color: #94a3b8; margin-bottom: 20px;">Upload resume or build your profile to simulate career paths</p>
+          </div>
+<button id="topLoginBtn" class="btn primary top-login-btn" onclick="window.location.href='login.html'">Login / Register</button>        </div>
+
+        <div class="card upload-card">
+          <div class="upload-graphics" aria-hidden="true">
+            <svg class="upload-illustration" viewBox="0 0 240 160" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="docGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#58a6ff"/>
+                  <stop offset="100%" stop-color="#a371f7"/>
+                </linearGradient>
+                <linearGradient id="arrowGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#22d3ee"/>
+                  <stop offset="100%" stop-color="#58a6ff"/>
+                </linearGradient>
+              </defs>
+              <circle class="orbit-dot" cx="40" cy="40" r="4" fill="#a371f7"/>
+              <circle class="orbit-dot delay-1" cx="200" cy="50" r="3" fill="#22d3ee"/>
+              <circle class="orbit-dot delay-2" cx="210" cy="120" r="5" fill="#58a6ff"/>
+              <circle class="orbit-dot delay-3" cx="30" cy="120" r="3" fill="#22c55e"/>
+              <g class="float-doc">
+                <rect x="90" y="35" width="60" height="78" rx="8" fill="url(#docGrad)" opacity="0.18" stroke="url(#docGrad)" stroke-width="1.5"/>
+                <rect x="100" y="50" width="40" height="3" rx="1.5" fill="#58a6ff" opacity="0.7"/>
+                <rect x="100" y="60" width="32" height="3" rx="1.5" fill="#a371f7" opacity="0.6"/>
+                <rect x="100" y="70" width="38" height="3" rx="1.5" fill="#58a6ff" opacity="0.5"/>
+                <rect x="100" y="80" width="26" height="3" rx="1.5" fill="#a371f7" opacity="0.5"/>
+                <rect x="100" y="90" width="34" height="3" rx="1.5" fill="#58a6ff" opacity="0.4"/>
+              </g>
+              <g class="float-arrow">
+                <path d="M120 18 L120 32 M114 26 L120 32 L126 26" stroke="url(#arrowGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              </g>
+            </svg>
+            <div class="upload-stats">
+              <span class="stat-pill">📄 PDF</span>
+              <span class="stat-pill">📝 DOCX</span>
+              <span class="stat-pill">⚡ Instant Analysis</span>
+            </div>
+          </div>
+          <h3>Drop your Resume</h3>
+          <input type="file" id="resumeInput" accept=".pdf,.docx" onchange="handleResumeUpload(event)">
+          <p style="margin: 15px 0;">— or —</p>
+          <button onclick="showManualForm()" class="btn">Build Profile Manually</button>
+        </div>
+
+        <div id="manualForm" class="card hidden">
+          <h3 style="color: #60a5fa; margin-bottom: 15px;">Student / Professional Profile</h3>
+          
+          <label style="font-size: 14px; color: #94a3b8;">Full Name / Current Role:</label>
+          <input type="text" id="currentRole" placeholder="e.g. John Doe - 10th Grade Student" style="width:100%; padding:10px; margin:5px 0 15px 0; background:#0f172a; border:1px solid #334155; color:white; border-radius:6px;">
+
+          <label style="font-size: 14px; color: #94a3b8;">Education:</label>
+          <div style="display:flex; gap:10px; margin:5px 0;">
+            <input type="text" id="eduLevel" placeholder="Course (e.g. 10th, B.Tech)" style="flex:1; padding:10px; background:#0f172a; border:1px solid #334155; color:white; border-radius:6px;">
+            <input type="text" id="eduDomain" placeholder="Domain/Board" style="flex:1; padding:10px; background:#0f172a; border:1px solid #334155; color:white; border-radius:6px;">
+            <input type="text" id="eduSchool" placeholder="School/College" style="flex:1; padding:10px; background:#0f172a; border:1px solid #334155; color:white; border-radius:6px;">
+            <button onclick="addEducation()" class="btn" style="background:#22c55e;">+ Add</button>
+          </div>
+          <div id="eduList" style="margin-bottom:15px; font-size:13px;"></div>
+
+          <label style="font-size: 14px; color: #94a3b8;">Achievements / Certifications:</label>
+          <div style="display:flex; gap:10px; margin:5px 0;">
+            <input type="text" id="achieveInput" placeholder="e.g. Won State Science Fair 2023" style="flex:1; padding:10px; background:#0f172a; border:1px solid #334155; color:white; border-radius:6px;">
+            <button onclick="addAchievement()" class="btn" style="background:#22c55e;">+ Add</button>
+          </div>
+          <div id="achieveList" style="margin-bottom:15px; font-size:13px;"></div>
+
+          <label style="font-size: 14px; color: #94a3b8;">Skills:</label>
+          <div style="display:flex; gap:10px; margin:5px 0;">
+            <input type="text" id="skillInput" placeholder="e.g. Python, Public Speaking" style="flex:1; padding:10px; background:#0f172a; border:1px solid #334155; color:white; border-radius:6px;">
+            <button onclick="addSkill()" class="btn" style="background:#22c55e;">+ Add</button>
+          </div>
+          <div id="skillsList" style="margin-bottom:15px; font-size:13px;"></div>
+
+          <label style="font-size: 14px; color: #94a3b8;">Interests:</label>
+          <div style="display:flex; gap:10px; margin:5px 0;">
+            <input type="text" id="interestInput" placeholder="e.g. AI, Space, Marketing" style="flex:1; padding:10px; background:#0f172a; border:1px solid #334155; color:white; border-radius:6px;">
+            <button onclick="addInterest()" class="btn" style="background:#22c55e;">+ Add</button>
+          </div>
+          <div id="interestsList" style="margin-bottom:20px; font-size:13px;"></div>
+
+          <button onclick="startDetailedAnalysis()" class="btn primary" style="width:100%; font-size:16px;">Analyze Career Paths</button>
+        </div>
+      </div>
+
+      <div id="results" class="section">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+          <h2>Your Career Pathways</h2>
+          <button onclick="exportPDF()" class="btn primary">📄 Export to PDF</button>
+        </div>
+        
+        <div class="flowchart" id="pdf-container">
+          <div class="root">YOU ARE HERE<br><span id="current-position">Student</span></div>
+          <div id="pathways" class="pathways">
+            <p style="color: #94a3b8; text-align: center;">Complete an analysis to see your pathways here.</p>
+          </div>
+        </div>
+
+        <div class="results-actions" style="display: flex; gap: 15px; justify-content: center; margin-top: 25px;">
+          <button onclick="toggleSection('compareContainer')" class="btn">⚖️ Compare Careers</button>
+          <button onclick="toggleSection('chartContainer')" class="btn">📈 Show Demanding Chart</button>
+        </div>
+
+        <div id="compareContainer" class="card hidden" style="margin-top: 20px;">
+          <h3 style="color: #c084fc; margin-bottom: 15px;">⚖️ Pathway Comparison</h3>
+          
+          <div id="compareSelectionArea">
+            <p style="color: #94a3b8; margin-bottom: 10px;">Select at least 2 careers to compare side-by-side:</p>
+            <div id="compareCheckboxes" style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
+              </div>
+            <button onclick="generateComparison()" class="btn" style="background: #8b5cf6; color: white;">Compare Selected</button>
+          </div>
+
+          <div id="compareGrid" class="compare-grid hidden" style="margin-top: 20px; display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px;">
+             </div>
+        </div>
+
+        <div id="chartContainer" class="card hidden" style="margin-top: 20px;">
+          <h3 style="color: #fbbf24; margin-bottom: 15px;">📈 Market Demand Visualization</h3>
+          <div style="background: #0f172a; padding: 15px; border-radius: 8px; border: 1px solid #334155;">
+            <canvas id="demandChart" height="150"></canvas>
+          </div>
+        </div>
+
+        <div id="historyContainer" class="card" style="margin-top: 40px; border-color: #475569;">
+          <h3 style="margin-bottom: 15px;">📜 Previous Simulations</h3>
+          <div id="historyList" class="history-grid"></div>
+        </div>
+
+      </div>
+<div id="history" class="section">
+        <h2>📜 Previous Simulations</h2>
+        <div id="historyList" class="history-list">
+          <!-- History items will be dynamically added here by JavaScript -->
+        </div>
+      </div>
+      <div id="chat" class="section">
+        <h2>AI Career Assistant</h2>
+        <div id="chatbox" class="chatbox"></div>
+        <div class="chat-input-area">
+          <input type="text" id="chat-input" placeholder="Ask anything...">
+          <button onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+
+      <div id="dev" class="section">
+        <h2>Settings</h2>
+        <input type="password" id="apikey" placeholder="Paste Google AI Studio Gemini API Key" style="width:100%; padding:12px; margin-bottom:15px; background:#0f172a; border:1px solid #334155; color:white; border-radius:6px;">
+        <button onclick="connectApiKey()" class="btn primary">Connect API Key</button>
+        <p id="status" style="margin-top:15px;"></p>
+      </div>
+
+    </div> <button class="floating-chat-btn" onclick="showSection('chat')">💬</button>
+
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
